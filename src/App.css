@@ -529,6 +529,18 @@
   margin-left: 6px;
 }
 
+.message-recipients {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.recipient-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
 .message-meta {
   display: flex;
   align-items: center;

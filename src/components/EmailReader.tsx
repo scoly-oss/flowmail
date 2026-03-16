@@ -195,6 +195,12 @@ export function EmailReader({ threadId, myEmail, onBack, onReply, onReplyWithDra
                   <div>
                     <strong>{msg.from}</strong>
                     <span className="message-email">&lt;{msg.fromEmail}&gt;</span>
+                    {expanded && msg.to && (
+                      <div className="message-recipients">
+                        <span className="recipient-label">À :</span> {msg.to}
+                        {msg.cc && <><br /><span className="recipient-label">Cc :</span> {msg.cc}</>}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="message-meta">
