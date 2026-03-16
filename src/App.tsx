@@ -96,9 +96,21 @@ export default function App() {
     setSelectedIndex((i) => Math.min(i, emails.length - 2))
   }
 
+  const getReplyRecipient = (detail: EmailDetail): string => {
+    // If the last message is from me, reply to the "To" field instead
+    const myEmail = email.toLowerCase()
+    const senderEmail = (detail.replyTo || detail.fromEmail || '').toLowerCase()
+    if (senderEmail === myEmail && detail.to) {
+      // Extract email from "To" field (could be "Name <email>" format)
+      const match = detail.to.match(/<(.+?)>/)
+      return match ? match[1] : detail.to.split(',')[0].trim()
+    }
+    return detail.replyTo || detail.fromEmail
+  }
+
   const handleReply = (detail: EmailDetail) => {
     setReplyData({
-      to: detail.replyTo || detail.fromEmail,
+      to: getReplyRecipient(detail),
       subject: detail.subject,
       threadId: detail.threadId,
       messageId: detail.id,
@@ -108,7 +120,7 @@ export default function App() {
 
   const handleReplyWithDraft = (detail: EmailDetail, draft: string) => {
     setReplyData({
-      to: detail.replyTo || detail.fromEmail,
+      to: getReplyRecipient(detail),
       subject: detail.subject,
       threadId: detail.threadId,
       messageId: detail.id,
