@@ -76,6 +76,47 @@ function extractBody(message: GmailMessage): string {
   return message.snippet || ''
 }
 
+// Build a map of Content-ID -> { attachmentId, mimeType } for inline images
+function getInlineImageParts(message: GmailMessage): { cid: string; attachmentId: string; mimeType: string }[] {
+  const results: { cid: string; attachmentId: string; mimeType: string }[] = []
+  const walk = (parts?: GmailPart[]) => {
+    if (!parts) return
+    for (const part of parts) {
+      if (part.mimeType.startsWith('image/') && part.body?.attachmentId) {
+        const cidHeader = part.headers?.find((h) => h.name.toLowerCase() === 'content-id')
+        if (cidHeader) {
+          // Content-ID comes as <id>, strip the angle brackets
+          const cid = cidHeader.value.replace(/^<|>$/g, '')
+          results.push({ cid, attachmentId: part.body.attachmentId, mimeType: part.mimeType })
+        }
+      }
+      if (part.parts) walk(part.parts)
+    }
+  }
+  walk(message.payload?.parts)
+  return results
+}
+
+async function resolveInlineImages(messageId: string, html: string, message: GmailMessage): Promise<string> {
+  const inlineParts = getInlineImageParts(message)
+  if (inlineParts.length === 0) return html
+
+  let resolved = html
+  for (const part of inlineParts) {
+    if (!resolved.includes(`cid:${part.cid}`)) continue
+    try {
+      const attachment = await request<{ data: string }>(`/messages/${messageId}/attachments/${part.attachmentId}`)
+      // Gmail returns base64url, convert to standard base64
+      const base64 = attachment.data.replace(/-/g, '+').replace(/_/g, '/')
+      const dataUrl = `data:${part.mimeType};base64,${base64}`
+      resolved = resolved.split(`cid:${part.cid}`).join(dataUrl)
+    } catch {
+      // If attachment fetch fails, leave the cid reference
+    }
+  }
+  return resolved
+}
+
 function findPart(parts: GmailPart[] | undefined, mimeType: string): GmailPart | undefined {
   if (!parts) return undefined
   for (const part of parts) {
@@ -117,11 +158,14 @@ function messageToSummary(message: GmailMessage): EmailSummary {
   }
 }
 
-function messageToDetail(message: GmailMessage): EmailDetail {
+async function messageToDetail(message: GmailMessage): Promise<EmailDetail> {
   const summary = messageToSummary(message)
+  let body = extractBody(message)
+  // Resolve inline cid: images to data URLs
+  body = await resolveInlineImages(message.id, body, message)
   return {
     ...summary,
-    body: extractBody(message),
+    body,
     cc: getHeader(message, 'Cc'),
     bcc: getHeader(message, 'Bcc'),
     replyTo: getHeader(message, 'Reply-To') || summary.fromEmail,
@@ -156,12 +200,12 @@ export async function listMessages(
 
 export async function getMessage(id: string): Promise<EmailDetail> {
   const message = await request<GmailMessage>(`/messages/${id}?format=full`)
-  return messageToDetail(message)
+  return await messageToDetail(message)
 }
 
 export async function getThread(threadId: string): Promise<EmailDetail[]> {
   const thread = await request<GmailThread>(`/threads/${threadId}?format=full`)
-  return thread.messages.map(messageToDetail)
+  return await Promise.all(thread.messages.map(messageToDetail))
 }
 
 export async function archiveMessage(id: string): Promise<void> {

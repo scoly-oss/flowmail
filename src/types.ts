@@ -23,6 +23,7 @@ export interface GmailHeader {
 export interface GmailBody {
   size: number
   data?: string
+  attachmentId?: string
 }
 
 export interface GmailPart {
