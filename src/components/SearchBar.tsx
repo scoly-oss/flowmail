@@ -22,8 +22,16 @@ export function SearchBar({ onSearch, onClose, visible }: SearchBarProps) {
 
   if (!visible) return null
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Direct Gmail search — fast, immediate
+  const handleDirectSearch = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!query.trim()) return
+    setConvertedQuery('')
+    onSearch(query.trim(), query.trim())
+  }
+
+  // AI-powered search — converts natural language to Gmail syntax
+  const handleAISearch = async () => {
     if (!query.trim()) return
     setConverting(true)
     try {
@@ -45,27 +53,34 @@ export function SearchBar({ onSearch, onClose, visible }: SearchBarProps) {
 
   return (
     <div className="search-bar">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleDirectSearch}>
         <span className="search-icon">⌕</span>
-        <span className="search-ai-indicator">✦ IA</span>
         <input
           ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Recherche intelligente — ex : mails de Louis cette semaine..."
+          placeholder="Rechercher dans vos emails..."
           className="search-input"
           disabled={converting}
         />
-        {converting && <span className="search-ai-indicator" style={{ opacity: 0.6 }}>Conversion...</span>}
+        <button
+          type="button"
+          className="toolbar-btn ai-btn search-ai-btn"
+          onClick={handleAISearch}
+          disabled={converting || !query.trim()}
+          title="Recherche intelligente IA — convertit ta requête en syntaxe Gmail avancée"
+        >
+          {converting ? '...' : '✦ IA'}
+        </button>
         <button type="button" className="search-close" onClick={onClose}>
           <kbd>Esc</kbd>
         </button>
       </form>
-      {convertedQuery && (
+      {convertedQuery && convertedQuery !== query && (
         <div className="search-converted">
-          Requête Gmail : <code>{convertedQuery}</code>
+          Requête Gmail convertie : <code>{convertedQuery}</code>
         </div>
       )}
     </div>
