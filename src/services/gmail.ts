@@ -224,9 +224,14 @@ export async function sendEmail(
   if (bcc) headers.push(`Bcc: ${bcc}`)
   if (replyToMessageId) headers.push(`In-Reply-To: ${replyToMessageId}`)
 
-  const raw = btoa(
-    headers.join('\r\n') + '\r\n\r\n' + body
-  )
+  // Encode to UTF-8 first, then base64url (btoa can't handle chars > 255)
+  const rawString = headers.join('\r\n') + '\r\n\r\n' + body
+  const utf8Bytes = new TextEncoder().encode(rawString)
+  let binary = ''
+  for (const byte of utf8Bytes) {
+    binary += String.fromCharCode(byte)
+  }
+  const raw = btoa(binary)
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '')

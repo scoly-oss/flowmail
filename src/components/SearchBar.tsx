@@ -22,17 +22,10 @@ export function SearchBar({ onSearch, onClose, visible }: SearchBarProps) {
 
   if (!visible) return null
 
-  // Direct Gmail search — fast, immediate
-  const handleDirectSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!query.trim()) return
-    setConvertedQuery('')
-    onSearch(query.trim(), query.trim())
-  }
-
-  // AI-powered search — converts natural language to Gmail syntax
-  const handleAISearch = async () => {
-    if (!query.trim()) return
+  // All searches go through AI to convert natural language to Gmail syntax
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    if (!query.trim() || converting) return
     setConverting(true)
     try {
       const gmailQuery = await smartSearch(query.trim())
@@ -53,7 +46,7 @@ export function SearchBar({ onSearch, onClose, visible }: SearchBarProps) {
 
   return (
     <div className="search-bar">
-      <form onSubmit={handleDirectSearch}>
+      <form onSubmit={handleSearch}>
         <span className="search-icon">⌕</span>
         <input
           ref={inputRef}
@@ -61,26 +54,25 @@ export function SearchBar({ onSearch, onClose, visible }: SearchBarProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Rechercher dans vos emails..."
+          placeholder="Rechercher : ex. 'emails de la capeb cette semaine'..."
           className="search-input"
           disabled={converting}
         />
         <button
-          type="button"
+          type="submit"
           className="toolbar-btn ai-btn search-ai-btn"
-          onClick={handleAISearch}
           disabled={converting || !query.trim()}
-          title="Recherche intelligente IA — convertit ta requête en syntaxe Gmail avancée"
+          title="Recherche intelligente IA"
         >
-          {converting ? '...' : '✦ IA'}
+          {converting ? '⏳' : '✦ Rechercher'}
         </button>
         <button type="button" className="search-close" onClick={onClose}>
           <kbd>Esc</kbd>
         </button>
       </form>
-      {convertedQuery && convertedQuery !== query && (
+      {convertedQuery && (
         <div className="search-converted">
-          Requête Gmail convertie : <code>{convertedQuery}</code>
+          ✦ Requête Gmail : <code>{convertedQuery}</code>
         </div>
       )}
     </div>

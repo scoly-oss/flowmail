@@ -109,8 +109,8 @@ export default function App() {
     const replyToHeader = detail.replyTo || ''
     const fromAddr = detail.fromEmail || ''
 
-    // If Reply-To is my own email, ignore it and use From
-    let candidate = replyToHeader.toLowerCase() === myEmail ? fromAddr : (replyToHeader || fromAddr)
+    // If Reply-To is my own email (even in "Name <email>" format), ignore it and use From
+    let candidate = extractEmail(replyToHeader).toLowerCase() === myEmail ? fromAddr : (replyToHeader || fromAddr)
 
     // If candidate is still my own email (I sent this message), use the To field
     if (extractEmail(candidate).toLowerCase() === myEmail && detail.to) {
