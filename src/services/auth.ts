@@ -12,11 +12,33 @@ interface TokenResponse {
   error?: string
 }
 
-export function initAuth(onSuccess: (token: string) => void, onError: (err: string) => void): void {
+function waitForGsi(): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof google !== 'undefined' && google.accounts?.oauth2) {
+      resolve()
+      return
+    }
+    const interval = setInterval(() => {
+      if (typeof google !== 'undefined' && google.accounts?.oauth2) {
+        clearInterval(interval)
+        resolve()
+      }
+    }, 100)
+  })
+}
+
+export async function initAuth(onSuccess: (token: string) => void, onError: (err: string) => void): Promise<void> {
   const stored = sessionStorage.getItem('flowmail_token')
   if (stored) {
     accessToken = stored
     onSuccess(stored)
+  }
+
+  try {
+    await waitForGsi()
+  } catch {
+    onError('Google Identity Services failed to load')
+    return
   }
 
   tokenClient = google.accounts.oauth2.initTokenClient({
@@ -45,11 +67,12 @@ export function getToken(): string | null {
 }
 
 export function logout(): void {
-  if (accessToken) {
+  if (accessToken && typeof google !== 'undefined' && google.accounts?.oauth2) {
     google.accounts.oauth2.revoke(accessToken, () => {})
   }
   accessToken = null
   sessionStorage.removeItem('flowmail_token')
+  window.location.reload()
 }
 
 declare global {
