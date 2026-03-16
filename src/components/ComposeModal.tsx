@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { sendEmail } from '../services/gmail'
-import { getSignaturePlainText } from '../utils/signature'
+import { getSignature } from '../utils/signature'
 
 interface ComposeModalProps {
   onClose: () => void
@@ -25,19 +25,7 @@ export function ComposeModal({ onClose, onSent, replyTo }: ComposeModalProps) {
         : `Re: ${replyTo.subject}`
       : ''
   )
-  const signature = getSignaturePlainText()
-  const [body, setBody] = useState(() => {
-    if (replyTo?.body) {
-      // Reply with AI draft: append signature before quoted text
-      return replyTo.body + signature
-    }
-    if (replyTo) {
-      // Reply without draft: just signature
-      return signature
-    }
-    // New email: signature at the bottom
-    return signature
-  })
+  const [body, setBody] = useState(replyTo?.body || '')
   const [sending, setSending] = useState(false)
   const [showCc, setShowCc] = useState(false)
 
@@ -45,12 +33,21 @@ export function ComposeModal({ onClose, onSent, replyTo }: ComposeModalProps) {
     if (!to.trim()) return
     setSending(true)
     try {
-      await sendEmail(to, subject, body, cc || undefined, bcc || undefined, replyTo?.threadId, replyTo?.messageId)
+      // Convert plain text body to HTML and append signature
+      const htmlBody = buildHtmlEmail(body)
+      await sendEmail(to, subject, htmlBody, cc || undefined, bcc || undefined, replyTo?.threadId, replyTo?.messageId)
       onSent()
       onClose()
     } catch (err) {
       console.error('Send failed:', err)
       setSending(false)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault()
+      handleSend()
     }
   }
 
@@ -115,8 +112,14 @@ export function ComposeModal({ onClose, onSent, replyTo }: ComposeModalProps) {
           className="compose-body"
           value={body}
           onChange={(e) => setBody(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Écrivez votre message..."
         />
+
+        <div className="compose-signature-preview">
+          <div className="signature-label">Signature</div>
+          <div className="signature-preview-content" dangerouslySetInnerHTML={{ __html: getSignature() }} />
+        </div>
 
         <div className="compose-footer">
           <button
@@ -133,4 +136,31 @@ export function ComposeModal({ onClose, onSent, replyTo }: ComposeModalProps) {
       </div>
     </div>
   )
+}
+
+function buildHtmlEmail(plainTextBody: string): string {
+  const signature = getSignature()
+  const bodyHtml = plainTextBody
+    .split('\n')
+    .map((line) => (line.trim() === '' ? '<br>' : `<p style="margin: 0 0 4px 0; font-family: 'Trebuchet MS', Arial, sans-serif; font-size: 14px; color: #1e2d3d; line-height: 1.5;">${escapeHtml(line)}</p>`))
+    .join('\n')
+
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin: 0; padding: 0; font-family: 'Trebuchet MS', Arial, sans-serif;">
+<div style="max-width: 600px; padding: 0;">
+${bodyHtml}
+${signature}
+</div>
+</body>
+</html>`
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
 }

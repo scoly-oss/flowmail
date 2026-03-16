@@ -713,6 +713,25 @@
   color: var(--text-secondary);
 }
 
+.compose-signature-preview {
+  padding: 0 16px 8px;
+  border-top: 1px dashed var(--border);
+  margin-top: -4px;
+}
+
+.signature-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  margin: 8px 0 4px;
+}
+
+.signature-preview-content {
+  opacity: 0.85;
+  pointer-events: none;
+}
+
 /* ===== SEARCH BAR ===== */
 .search-bar {
   padding: 8px 20px;
