@@ -335,6 +335,7 @@ export default function App() {
         {selectedEmail ? (
           <EmailReader
             threadId={selectedEmail.threadId}
+            myEmail={email}
             onBack={() => setSelectedEmail(null)}
             onReply={handleReply}
             onReplyWithDraft={handleReplyWithDraft}

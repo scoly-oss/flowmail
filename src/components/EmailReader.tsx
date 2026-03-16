@@ -6,6 +6,7 @@ import { formatFullDate } from '../utils/date'
 
 interface EmailReaderProps {
   threadId: string
+  myEmail: string
   onBack: () => void
   onReply: (email: EmailDetail) => void
   onReplyWithDraft: (email: EmailDetail, draft: string) => void
@@ -13,7 +14,7 @@ interface EmailReaderProps {
   onTrash: () => void
 }
 
-export function EmailReader({ threadId, onBack, onReply, onReplyWithDraft, onArchive, onTrash }: EmailReaderProps) {
+export function EmailReader({ threadId, myEmail, onBack, onReply, onReplyWithDraft, onArchive, onTrash }: EmailReaderProps) {
   const [messages, setMessages] = useState<EmailDetail[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
@@ -45,15 +46,28 @@ export function EmailReader({ threadId, onBack, onReply, onReplyWithDraft, onArc
     })
   }
 
+  // Find the best message to reply to: last message NOT from me
+  const getReplyTarget = (): EmailDetail | undefined => {
+    const me = myEmail.toLowerCase()
+    // Try last message not from me
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].fromEmail.toLowerCase() !== me) {
+        return messages[i]
+      }
+    }
+    // If all messages are from me, reply to the last one
+    return messages[messages.length - 1]
+  }
+
   const handleSummarize = async () => {
-    const lastMsg = messages[messages.length - 1]
-    if (!lastMsg) return
+    const target = getReplyTarget()
+    if (!target) return
     setSummarizing(true)
     try {
       const text = await summarizeEmail({
-        from: lastMsg.from,
-        subject: lastMsg.subject,
-        body: lastMsg.body.replace(/<[^>]*>/g, ' ').substring(0, 3000),
+        from: target.from,
+        subject: target.subject,
+        body: target.body.replace(/<[^>]*>/g, ' ').substring(0, 3000),
       })
       setSummary(text)
     } catch (err) {
@@ -64,22 +78,22 @@ export function EmailReader({ threadId, onBack, onReply, onReplyWithDraft, onArc
   }
 
   const handleDraftReply = async () => {
-    const lastMsg = messages[messages.length - 1]
-    if (!lastMsg) return
+    const target = getReplyTarget()
+    if (!target) return
     setDrafting(true)
     try {
       const text = await draftReply(
         {
-          from: lastMsg.from,
-          fromEmail: lastMsg.fromEmail,
-          subject: lastMsg.subject,
-          body: lastMsg.body.replace(/<[^>]*>/g, ' ').substring(0, 3000),
+          from: target.from,
+          fromEmail: target.fromEmail,
+          subject: target.subject,
+          body: target.body.replace(/<[^>]*>/g, ' ').substring(0, 3000),
         },
         draftInstruction || undefined
       )
       setShowDraftInput(false)
       setDraftInstruction('')
-      onReplyWithDraft(lastMsg, text)
+      onReplyWithDraft(target, text)
     } catch (err) {
       console.error('Draft failed:', err)
     }
@@ -95,6 +109,7 @@ export function EmailReader({ threadId, onBack, onReply, onReplyWithDraft, onArc
   }
 
   const subject = messages[0]?.subject || '(sans objet)'
+  const replyTarget = getReplyTarget()
 
   return (
     <div className="email-reader">
@@ -109,7 +124,7 @@ export function EmailReader({ threadId, onBack, onReply, onReplyWithDraft, onArc
           <button className="toolbar-btn" onClick={onTrash} title="Supprimer (#)">
             Supprimer
           </button>
-          <button className="toolbar-btn" onClick={() => messages.length > 0 && onReply(messages[messages.length - 1])} title="Répondre (r)">
+          <button className="toolbar-btn" onClick={() => replyTarget && onReply(replyTarget)} title="Répondre (r)">
             Répondre
           </button>
           <span className="toolbar-separator" />
@@ -171,6 +186,7 @@ export function EmailReader({ threadId, onBack, onReply, onReplyWithDraft, onArc
       <div className="reader-messages">
         {messages.map((msg) => {
           const expanded = expandedIds.has(msg.id)
+          const isMe = msg.fromEmail.toLowerCase() === myEmail.toLowerCase()
           return (
             <div key={msg.id} className={`reader-message ${expanded ? 'expanded' : 'collapsed'}`}>
               <div className="message-header" onClick={() => toggleExpand(msg.id)}>
@@ -181,7 +197,18 @@ export function EmailReader({ threadId, onBack, onReply, onReplyWithDraft, onArc
                     <span className="message-email">&lt;{msg.fromEmail}&gt;</span>
                   </div>
                 </div>
-                <div className="message-date">{formatFullDate(msg.date)}</div>
+                <div className="message-meta">
+                  <div className="message-date">{formatFullDate(msg.date)}</div>
+                  {expanded && !isMe && (
+                    <button
+                      className="message-reply-btn"
+                      onClick={(e) => { e.stopPropagation(); onReply(msg) }}
+                      title="Répondre à ce message"
+                    >
+                      ↩ Répondre
+                    </button>
+                  )}
+                </div>
               </div>
               {expanded && (
                 <div className="message-body">

@@ -529,9 +529,33 @@
   margin-left: 6px;
 }
 
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 .message-date {
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+.message-reply-btn {
+  font-size: 12px;
+  color: var(--accent);
+  background: none;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+
+.message-reply-btn:hover {
+  background: var(--accent);
+  color: white;
 }
 
 .message-snippet {
