@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { initAuth, logout } from './services/auth'
 import { listMessages, searchMessages, archiveMessage, trashMessage, markAsRead, toggleStar } from './services/gmail'
+import { classifyEmails } from './services/claude'
 import { LoginScreen } from './components/LoginScreen'
 import { Sidebar } from './components/Sidebar'
 import { EmailList } from './components/EmailList'
 import { EmailReader } from './components/EmailReader'
 import { ComposeModal } from './components/ComposeModal'
 import { SearchBar } from './components/SearchBar'
+import { TriagePanel } from './components/TriagePanel'
 import { useKeyboard } from './hooks/useKeyboard'
 import type { EmailSummary, EmailDetail } from './types'
 import './App.css'
@@ -23,6 +25,10 @@ export default function App() {
   const [replyData, setReplyData] = useState<{ to: string; subject: string; threadId?: string; messageId?: string; body?: string } | undefined>()
   const [showSearch, setShowSearch] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [gmailQuery, setGmailQuery] = useState('')
+  const [showTriage, setShowTriage] = useState(false)
+  const [triageResults, setTriageResults] = useState<{ id: string; category: string; reason: string; suggestedAction: string }[]>([])
+  const [triaging, setTriaging] = useState(false)
 
   const fetchEmails = useCallback(async (label: string, query?: string) => {
     setLoading(true)
@@ -116,11 +122,63 @@ export default function App() {
     setShowCompose(true)
   }
 
-  const handleSearch = (query: string) => {
+  const handleSearch = (query: string, convertedGmailQuery: string) => {
     setSearchQuery(query)
+    setGmailQuery(convertedGmailQuery)
     setSelectedEmail(null)
     setShowSearch(false)
-    fetchEmails(currentLabel, query)
+    fetchEmails(currentLabel, convertedGmailQuery)
+  }
+
+  const handleTriage = async () => {
+    if (triaging || emails.length === 0) return
+    setTriaging(true)
+    try {
+      const emailsToClassify = emails.slice(0, 20).map((e) => ({
+        id: e.id,
+        from: e.from,
+        subject: e.subject,
+        snippet: e.snippet,
+      }))
+      const results = await classifyEmails(emailsToClassify)
+      setTriageResults(results)
+      setShowTriage(true)
+    } catch (err) {
+      console.error('Triage failed:', err)
+    }
+    setTriaging(false)
+  }
+
+  const handleTriageArchive = async (id: string) => {
+    await archiveMessage(id)
+    setEmails((prev) => prev.filter((e) => e.id !== id))
+    setTriageResults((prev) => prev.filter((r) => r.id !== id))
+  }
+
+  const handleTriageReply = (email: EmailSummary) => {
+    setReplyData({
+      to: email.fromEmail,
+      subject: email.subject,
+      threadId: email.threadId,
+    })
+    setShowCompose(true)
+  }
+
+  const handleTriageTrash = async (id: string) => {
+    await trashMessage(id)
+    setEmails((prev) => prev.filter((e) => e.id !== id))
+    setTriageResults((prev) => prev.filter((r) => r.id !== id))
+  }
+
+  const handleBatchArchiveNewsletters = async () => {
+    const newsletterIds = triageResults
+      .filter((r) => r.category === 'NEWSLETTER')
+      .map((r) => r.id)
+    for (const id of newsletterIds) {
+      await archiveMessage(id)
+    }
+    setEmails((prev) => prev.filter((e) => !newsletterIds.includes(e.id)))
+    setTriageResults((prev) => prev.filter((r) => r.category !== 'NEWSLETTER'))
   }
 
   const handleStar = async (index: number) => {
@@ -213,9 +271,19 @@ export default function App() {
 
         <div className="main-header">
           <h2 className="main-title">
-            {searchQuery ? `Recherche : ${searchQuery}` : getLabelName(currentLabel)}
+            {searchQuery
+              ? <>Recherche : {searchQuery}{gmailQuery && gmailQuery !== searchQuery && <span className="search-converted-inline"> ({gmailQuery})</span>}</>
+              : getLabelName(currentLabel)}
           </h2>
           <div className="main-actions">
+            <button
+              className="toolbar-btn ai-btn"
+              onClick={handleTriage}
+              disabled={triaging || emails.length === 0}
+              title="Triage IA"
+            >
+              {triaging ? '...' : '✦ Trier'}
+            </button>
             <button className="toolbar-btn" onClick={() => fetchEmails(currentLabel, searchQuery || undefined)} title="Actualiser">
               ↻
             </button>
@@ -227,6 +295,18 @@ export default function App() {
             </button>
           </div>
         </div>
+
+        {showTriage && !selectedEmail && (
+          <TriagePanel
+            results={triageResults}
+            emails={emails}
+            onDismiss={() => setShowTriage(false)}
+            onArchive={handleTriageArchive}
+            onReply={handleTriageReply}
+            onTrash={handleTriageTrash}
+            onBatchArchiveNewsletters={handleBatchArchiveNewsletters}
+          />
+        )}
 
         {selectedEmail ? (
           <EmailReader

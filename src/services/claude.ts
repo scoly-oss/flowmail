@@ -41,7 +41,7 @@ export async function draftReply(
 
 export async function classifyEmails(
   emails: { id: string; from: string; subject: string; snippet: string }[]
-): Promise<{ id: string; category: string; reason: string }[]> {
+): Promise<{ id: string; category: string; reason: string; suggestedAction: string }[]> {
   const res = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -54,6 +54,17 @@ export async function classifyEmails(
   } catch {
     return []
   }
+}
+
+export async function smartSearch(query: string): Promise<string> {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'smart_search', query }),
+  })
+  const data: ClaudeResponse = await res.json()
+  if (data.error) throw new Error(data.error)
+  return data.text.trim()
 }
 
 export async function smartCompose(instruction: string): Promise<string> {

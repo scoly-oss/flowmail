@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { sendEmail } from '../services/gmail'
+import { getSignaturePlainText } from '../utils/signature'
 
 interface ComposeModalProps {
   onClose: () => void
@@ -24,7 +25,19 @@ export function ComposeModal({ onClose, onSent, replyTo }: ComposeModalProps) {
         : `Re: ${replyTo.subject}`
       : ''
   )
-  const [body, setBody] = useState(replyTo?.body || '')
+  const signature = getSignaturePlainText()
+  const [body, setBody] = useState(() => {
+    if (replyTo?.body) {
+      // Reply with AI draft: append signature before quoted text
+      return replyTo.body + signature
+    }
+    if (replyTo) {
+      // Reply without draft: just signature
+      return signature
+    }
+    // New email: signature at the bottom
+    return signature
+  })
   const [sending, setSending] = useState(false)
   const [showCc, setShowCc] = useState(false)
 
