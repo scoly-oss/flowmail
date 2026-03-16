@@ -61,17 +61,18 @@
 }
 
 .btn-primary {
-  background: var(--accent);
+  background: linear-gradient(135deg, #e8842c 0%, #F5A623 100%);
   color: white;
   font-weight: 500;
   padding: 12px 32px;
   border-radius: var(--radius);
   font-size: 15px;
-  transition: background var(--transition);
+  transition: opacity var(--transition);
+  box-shadow: 0 4px 20px rgba(232, 132, 44, 0.25);
 }
 
 .btn-primary:hover {
-  background: var(--accent-hover);
+  opacity: 0.9;
 }
 
 .btn-primary:disabled {
@@ -111,7 +112,7 @@
 
 .btn-compose {
   margin: 4px 12px 12px;
-  background: var(--accent);
+  background: linear-gradient(135deg, #e8842c 0%, #F5A623 100%);
   color: white;
   font-weight: 500;
   padding: 10px 16px;
@@ -119,17 +120,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: background var(--transition);
+  transition: opacity var(--transition);
+  box-shadow: 0 4px 20px rgba(232, 132, 44, 0.25);
 }
 
 .btn-compose:hover {
-  background: var(--accent-hover);
+  opacity: 0.9;
 }
 
 .btn-compose kbd {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .sidebar-nav {
@@ -159,6 +161,7 @@
 .nav-item.active {
   background: var(--accent-bg);
   color: var(--accent);
+  font-weight: 600;
 }
 
 .nav-icon {
@@ -172,7 +175,7 @@
 }
 
 .nav-badge {
-  background: var(--accent);
+  background: linear-gradient(135deg, #e8842c 0%, #F5A623 100%);
   color: white;
   font-size: 11px;
   font-weight: 600;
@@ -203,6 +206,7 @@
   justify-content: space-between;
   padding: 12px 20px;
   border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
   flex-shrink: 0;
 }
 
@@ -262,8 +266,8 @@
 
 .email-row.selected {
   background: var(--bg-selected);
-  border-left: 2px solid var(--accent);
-  padding-left: 18px;
+  border-left: 3px solid var(--accent);
+  padding-left: 17px;
 }
 
 .email-row.unread .email-row-from,
@@ -273,7 +277,7 @@
 }
 
 .email-row.unread {
-  background: var(--bg-tertiary);
+  background: var(--bg-secondary);
 }
 
 .email-row-star {
@@ -356,7 +360,7 @@
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
-  background: var(--bg);
+  background: var(--bg-secondary);
   z-index: 10;
 }
 
@@ -383,6 +387,7 @@
   border-radius: var(--radius);
   margin-bottom: 12px;
   overflow: hidden;
+  background: var(--bg-secondary);
 }
 
 .reader-message.collapsed {
@@ -415,8 +420,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--accent-bg);
-  color: var(--accent);
+  background: linear-gradient(135deg, #e8842c 0%, #F5A623 100%);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -457,6 +462,7 @@
   line-height: 1.6;
   color: var(--text-primary);
   overflow-x: auto;
+  background: var(--bg-secondary);
 }
 
 .message-body img {
@@ -475,11 +481,24 @@
   color: var(--text);
 }
 
+/* Override dark backgrounds from HTML emails */
+.message-body div,
+.message-body td,
+.message-body table {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+.message-body * {
+  max-width: 100% !important;
+  word-break: break-word;
+}
+
 /* ===== COMPOSE MODAL ===== */
 .compose-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(30, 45, 61, 0.3);
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
