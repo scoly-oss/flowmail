@@ -97,15 +97,27 @@ export default function App() {
   }
 
   const getReplyRecipient = (detail: EmailDetail): string => {
-    // If the last message is from me, reply to the "To" field instead
     const myEmail = email.toLowerCase()
-    const senderEmail = (detail.replyTo || detail.fromEmail || '').toLowerCase()
-    if (senderEmail === myEmail && detail.to) {
-      // Extract email from "To" field (could be "Name <email>" format)
-      const match = detail.to.match(/<(.+?)>/)
-      return match ? match[1] : detail.to.split(',')[0].trim()
+
+    // Helper to extract clean email from "Name <email>" format
+    const extractEmail = (raw: string): string => {
+      const match = raw.match(/<(.+?)>/)
+      return match ? match[1].trim() : raw.split(',')[0].trim()
     }
-    return detail.replyTo || detail.fromEmail
+
+    // Determine candidate: prefer Reply-To header, fallback to From
+    const replyToHeader = detail.replyTo || ''
+    const fromAddr = detail.fromEmail || ''
+
+    // If Reply-To is my own email, ignore it and use From
+    let candidate = replyToHeader.toLowerCase() === myEmail ? fromAddr : (replyToHeader || fromAddr)
+
+    // If candidate is still my own email (I sent this message), use the To field
+    if (extractEmail(candidate).toLowerCase() === myEmail && detail.to) {
+      candidate = detail.to
+    }
+
+    return extractEmail(candidate)
   }
 
   const handleReply = (detail: EmailDetail) => {
