@@ -20,7 +20,7 @@ export default function App() {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [selectedEmail, setSelectedEmail] = useState<EmailSummary | null>(null)
   const [showCompose, setShowCompose] = useState(false)
-  const [replyData, setReplyData] = useState<{ to: string; subject: string; threadId?: string; messageId?: string } | undefined>()
+  const [replyData, setReplyData] = useState<{ to: string; subject: string; threadId?: string; messageId?: string; body?: string } | undefined>()
   const [showSearch, setShowSearch] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -96,6 +96,17 @@ export default function App() {
       subject: detail.subject,
       threadId: detail.threadId,
       messageId: detail.id,
+    })
+    setShowCompose(true)
+  }
+
+  const handleReplyWithDraft = (detail: EmailDetail, draft: string) => {
+    setReplyData({
+      to: detail.replyTo || detail.fromEmail,
+      subject: detail.subject,
+      threadId: detail.threadId,
+      messageId: detail.id,
+      body: draft,
     })
     setShowCompose(true)
   }
@@ -222,6 +233,7 @@ export default function App() {
             threadId={selectedEmail.threadId}
             onBack={() => setSelectedEmail(null)}
             onReply={handleReply}
+            onReplyWithDraft={handleReplyWithDraft}
             onArchive={handleArchive}
             onTrash={handleTrash}
           />
@@ -244,16 +256,6 @@ export default function App() {
         />
       )}
 
-      <div className="shortcut-bar">
-        <span><kbd>j</kbd><kbd>k</kbd> naviguer</span>
-        <span><kbd>o</kbd> ouvrir</span>
-        <span><kbd>e</kbd> archiver</span>
-        <span><kbd>r</kbd> répondre</span>
-        <span><kbd>c</kbd> composer</span>
-        <span><kbd>/</kbd> rechercher</span>
-        <span><kbd>s</kbd> suivre</span>
-        <span><kbd>Esc</kbd> retour</span>
-      </div>
     </div>
   )
 }

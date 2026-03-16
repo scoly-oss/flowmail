@@ -364,6 +364,94 @@
   z-index: 10;
 }
 
+.toolbar-separator {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+.ai-btn {
+  color: var(--accent) !important;
+  font-weight: 500;
+}
+
+.ai-btn:hover {
+  background: var(--accent-bg) !important;
+}
+
+.ai-summary {
+  margin: 0 24px;
+  padding: 12px 16px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius);
+  position: relative;
+  margin-top: 12px;
+}
+
+.ai-summary p {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 4px 0 0;
+}
+
+.ai-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ai-dismiss {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.ai-dismiss:hover {
+  background: var(--bg-hover);
+}
+
+.ai-draft-input {
+  margin: 0 24px;
+  padding: 12px 16px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius);
+  margin-top: 12px;
+}
+
+.ai-draft-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.ai-draft-form input {
+  flex: 1;
+  font-size: 13px;
+}
+
+.ai-draft-btn {
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+  white-space: nowrap;
+}
+
+.ai-draft-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
 .toolbar-actions {
   display: flex;
   gap: 4px;

@@ -9,6 +9,7 @@ interface ComposeModalProps {
     subject: string
     threadId?: string
     messageId?: string
+    body?: string
   }
 }
 
@@ -23,7 +24,7 @@ export function ComposeModal({ onClose, onSent, replyTo }: ComposeModalProps) {
         : `Re: ${replyTo.subject}`
       : ''
   )
-  const [body, setBody] = useState('')
+  const [body, setBody] = useState(replyTo?.body || '')
   const [sending, setSending] = useState(false)
   const [showCc, setShowCc] = useState(false)
 
