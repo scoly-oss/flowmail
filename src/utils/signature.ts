@@ -14,7 +14,7 @@ export function getSignature(): string {
                 <td style="font-size: 13px; color: #e8842c; font-weight: 600; font-family: 'Trebuchet MS', Arial, sans-serif; padding-bottom: 2px;">Avocat en droit social &middot; Fondateur</td>
               </tr>
               <tr>
-                <td style="font-size: 12px; color: #5a6a7a; font-family: 'Trebuchet MS', Arial, sans-serif;">DAIRIA Avocats &middot; DAIRIA IA</td>
+                <td style="font-size: 12px; color: #5a6a7a; font-family: 'Trebuchet MS', Arial, sans-serif;">DAIRIA Avocats &middot; DAIRIA IA &middot; G&eacute;rerMesATMP</td>
               </tr>
             </table>
           </td>
@@ -62,5 +62,5 @@ export function getSignature(): string {
 }
 
 export function getSignaturePlainText(): string {
-  return `\n\n—\nSofiane Coly\nAvocat en droit social · Fondateur\nDAIRIA Avocats · DAIRIA IA\n\ns.coly@dairia-avocats.com\n65 rue Jacques-Louis Hénon, Lyon\n\nLinkedIn: linkedin.com/in/sofianecoly/\nSubstack: sofianecoly.substack.com\nWeb: sofiane-coly.vercel.app`
+  return `\n\n—\nSofiane Coly\nAvocat en droit social · Fondateur\nDAIRIA Avocats · DAIRIA IA · GérerMesATMP\n\ns.coly@dairia-avocats.com\n65 rue Jacques-Louis Hénon, Lyon\n\nLinkedIn: linkedin.com/in/sofianecoly/\nSubstack: sofianecoly.substack.com\nWeb: sofiane-coly.vercel.app`
 }
