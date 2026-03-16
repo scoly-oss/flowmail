@@ -22,7 +22,7 @@ export default function App() {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [selectedEmail, setSelectedEmail] = useState<EmailSummary | null>(null)
   const [showCompose, setShowCompose] = useState(false)
-  const [replyData, setReplyData] = useState<{ to: string; subject: string; threadId?: string; messageId?: string; body?: string } | undefined>()
+  const [replyData, setReplyData] = useState<{ to: string; cc?: string; subject: string; threadId?: string; messageId?: string; body?: string } | undefined>()
   const [showSearch, setShowSearch] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [gmailQuery, setGmailQuery] = useState('')
@@ -123,6 +123,35 @@ export default function App() {
   const handleReply = (detail: EmailDetail) => {
     setReplyData({
       to: getReplyRecipient(detail),
+      subject: detail.subject,
+      threadId: detail.threadId,
+      messageId: detail.id,
+    })
+    setShowCompose(true)
+  }
+
+  const handleReplyAll = (detail: EmailDetail) => {
+    const myAddr = email.toLowerCase()
+    const mainRecipient = getReplyRecipient(detail)
+
+    // Helper to extract individual email addresses from a comma-separated field
+    const parseAddresses = (field: string): string[] => {
+      if (!field) return []
+      return field.split(',').map((addr) => {
+        const match = addr.match(/<(.+?)>/)
+        return (match ? match[1] : addr).trim()
+      }).filter((addr) => addr.toLowerCase() !== myAddr)
+    }
+
+    // Cc = original To + original Cc, minus me and minus the main recipient
+    const toAddrs = parseAddresses(detail.to)
+    const ccAddrs = parseAddresses(detail.cc)
+    const allCc = [...toAddrs, ...ccAddrs]
+      .filter((addr) => addr.toLowerCase() !== mainRecipient.toLowerCase())
+
+    setReplyData({
+      to: mainRecipient,
+      cc: allCc.length > 0 ? allCc.join(', ') : undefined,
       subject: detail.subject,
       threadId: detail.threadId,
       messageId: detail.id,
@@ -338,6 +367,7 @@ export default function App() {
             myEmail={email}
             onBack={() => setSelectedEmail(null)}
             onReply={handleReply}
+            onReplyAll={handleReplyAll}
             onReplyWithDraft={handleReplyWithDraft}
             onArchive={handleArchive}
             onTrash={handleTrash}

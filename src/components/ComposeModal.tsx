@@ -7,6 +7,7 @@ interface ComposeModalProps {
   onSent: () => void
   replyTo?: {
     to: string
+    cc?: string
     subject: string
     threadId?: string
     messageId?: string
@@ -16,7 +17,7 @@ interface ComposeModalProps {
 
 export function ComposeModal({ onClose, onSent, replyTo }: ComposeModalProps) {
   const [to, setTo] = useState(replyTo?.to || '')
-  const [cc, setCc] = useState('')
+  const [cc, setCc] = useState(replyTo?.cc || '')
   const [bcc, setBcc] = useState('')
   const [subject, setSubject] = useState(
     replyTo?.subject
@@ -27,7 +28,7 @@ export function ComposeModal({ onClose, onSent, replyTo }: ComposeModalProps) {
   )
   const [body, setBody] = useState(replyTo?.body || '')
   const [sending, setSending] = useState(false)
-  const [showCc, setShowCc] = useState(false)
+  const [showCc, setShowCc] = useState(!!replyTo?.cc)
 
   const handleSend = async () => {
     if (!to.trim()) return

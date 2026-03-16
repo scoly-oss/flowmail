@@ -9,12 +9,13 @@ interface EmailReaderProps {
   myEmail: string
   onBack: () => void
   onReply: (email: EmailDetail) => void
+  onReplyAll: (email: EmailDetail) => void
   onReplyWithDraft: (email: EmailDetail, draft: string) => void
   onArchive: () => void
   onTrash: () => void
 }
 
-export function EmailReader({ threadId, myEmail, onBack, onReply, onReplyWithDraft, onArchive, onTrash }: EmailReaderProps) {
+export function EmailReader({ threadId, myEmail, onBack, onReply, onReplyAll, onReplyWithDraft, onArchive, onTrash }: EmailReaderProps) {
   const [messages, setMessages] = useState<EmailDetail[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
@@ -127,6 +128,9 @@ export function EmailReader({ threadId, myEmail, onBack, onReply, onReplyWithDra
           <button className="toolbar-btn" onClick={() => replyTarget && onReply(replyTarget)} title="Répondre (r)">
             Répondre
           </button>
+          <button className="toolbar-btn" onClick={() => replyTarget && onReplyAll(replyTarget)} title="Répondre à tous">
+            Rép. à tous
+          </button>
           <span className="toolbar-separator" />
           <button
             className="toolbar-btn ai-btn"
@@ -206,13 +210,24 @@ export function EmailReader({ threadId, myEmail, onBack, onReply, onReplyWithDra
                 <div className="message-meta">
                   <div className="message-date">{formatFullDate(msg.date)}</div>
                   {expanded && !isMe && (
-                    <button
-                      className="message-reply-btn"
-                      onClick={(e) => { e.stopPropagation(); onReply(msg) }}
-                      title="Répondre à ce message"
-                    >
-                      ↩ Répondre
-                    </button>
+                    <>
+                      <button
+                        className="message-reply-btn"
+                        onClick={(e) => { e.stopPropagation(); onReply(msg) }}
+                        title="Répondre à ce message"
+                      >
+                        ↩ Répondre
+                      </button>
+                      {(msg.cc || (msg.to && msg.to.includes(','))) && (
+                        <button
+                          className="message-reply-btn"
+                          onClick={(e) => { e.stopPropagation(); onReplyAll(msg) }}
+                          title="Répondre à tous"
+                        >
+                          ↩↩ Tous
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
