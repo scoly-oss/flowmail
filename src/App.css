@@ -765,7 +765,11 @@
 
 .signature-preview-content {
   opacity: 0.85;
-  pointer-events: none;
+}
+
+.signature-preview-content a {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 /* ===== SEARCH BAR ===== */

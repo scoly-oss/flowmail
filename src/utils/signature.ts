@@ -27,7 +27,7 @@ export function getSignature(): string {
       <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
         <tr>
           <td style="font-size: 12px; color: #5a6a7a; font-family: 'Trebuchet MS', Arial, sans-serif; padding-bottom: 4px;">
-            <a href="mailto:s.coly@dairia-avocats.com" style="color: #1e2d3d; text-decoration: none; font-weight: 600;">s.coly@dairia-avocats.com</a>
+            <a href="mailto:s.coly@dairia-avocats.com" target="_blank" style="color: #1e2d3d; text-decoration: none; font-weight: 600;">s.coly@dairia-avocats.com</a>
           </td>
         </tr>
         <tr>
@@ -40,16 +40,16 @@ export function getSignature(): string {
             <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
               <tr>
                 <td style="padding-right: 6px;">
-                  <a href="https://linkedin.com/in/sofianecoly/" style="display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; background-color: #1e2d3d; color: #ffffff; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: 700; font-family: 'Trebuchet MS', Arial, sans-serif;">in</a>
+                  <a href="https://linkedin.com/in/sofianecoly/" target="_blank" style="display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; background-color: #1e2d3d; color: #ffffff; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: 700; font-family: 'Trebuchet MS', Arial, sans-serif;">in</a>
                 </td>
                 <td style="padding-right: 6px;">
-                  <a href="https://sofianecoly.substack.com" style="display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; background-color: #e8842c; color: #ffffff; border-radius: 5px; text-decoration: none; font-size: 14px; font-weight: 700; font-family: 'Trebuchet MS', Arial, sans-serif;">S</a>
+                  <a href="https://sofianecoly.substack.com" target="_blank" style="display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; background-color: #e8842c; color: #ffffff; border-radius: 5px; text-decoration: none; font-size: 14px; font-weight: 700; font-family: 'Trebuchet MS', Arial, sans-serif;">S</a>
                 </td>
                 <td style="padding-right: 6px;">
-                  <a href="https://www.youtube.com/@DAIRIAAVOCATS" style="display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; background-color: #1e2d3d; color: #ffffff; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: 700; font-family: 'Trebuchet MS', Arial, sans-serif;">&#9654;</a>
+                  <a href="https://www.youtube.com/@DAIRIAAVOCATS" target="_blank" style="display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; background-color: #1e2d3d; color: #ffffff; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: 700; font-family: 'Trebuchet MS', Arial, sans-serif;">&#9654;</a>
                 </td>
                 <td>
-                  <a href="https://sofiane-coly.vercel.app" style="display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; background-color: #F5A623; color: #ffffff; border-radius: 5px; text-decoration: none; font-size: 14px; font-weight: 400; font-family: 'Trebuchet MS', Arial, sans-serif;">&#8599;</a>
+                  <a href="https://sofiane-coly.vercel.app" target="_blank" style="display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; background-color: #F5A623; color: #ffffff; border-radius: 5px; text-decoration: none; font-size: 14px; font-weight: 400; font-family: 'Trebuchet MS', Arial, sans-serif;">&#8599;</a>
                 </td>
               </tr>
             </table>
